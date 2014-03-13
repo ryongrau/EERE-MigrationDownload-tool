@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="CreateDownloadURL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://cms.doe.gov/node/add/download?gids_group%5B%5D=291</Value>
+    </Setting>
+    <Setting Name="LocalFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\doe\dfsfr</Value>
+    </Setting>
+    <Setting Name="CopyStructure" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="MyMostRecentFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>
