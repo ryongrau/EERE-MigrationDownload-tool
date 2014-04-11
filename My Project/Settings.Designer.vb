@@ -101,6 +101,30 @@ Namespace My
                 Me("MyMostRecentFile") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
+        Public Property ImmediatePublish() As Boolean
+            Get
+                Return CType(Me("ImmediatePublish"),Boolean)
+            End Get
+            Set
+                Me("ImmediatePublish") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0")>  _
+        Public Property NumberOfProcesses() As Integer
+            Get
+                Return CType(Me("NumberOfProcesses"),Integer)
+            End Get
+            Set
+                Me("NumberOfProcesses") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

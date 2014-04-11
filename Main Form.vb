@@ -5,6 +5,10 @@ Imports Spire.Pdf
 Public Class Form1
     '############################ FILE >   ##############################################################
     Dim Errnum As Double = 0
+    Dim ErrMsg As String = ""
+    Dim myFileHeader As String = "SourcePage" & vbTab & "FileURL" & vbTab & "NodeID" & vbTab & "Add Download Node" & vbTab & "LocalFilePath" _
+                                  & vbTab & "FileSize" & vbTab & "DateDownloaded" & vbTab & "DateCreated" & vbTab & "Title" & vbTab & "Subject" & vbTab & "OfficeSpecificTopics"
+
     Private Sub DownLoadFromList_Click(sender As Object, e As EventArgs) Handles DownLoadFromList.Click
         Dim myStream As Stream = Nothing
         Dim openFileDialog1 As New OpenFileDialog()
@@ -19,20 +23,25 @@ Public Class Form1
                 My.Settings.MyMostRecentFile = openFileDialog1.FileName
                 myStream = openFileDialog1.OpenFile()
                 If (myStream IsNot Nothing) Then
-                    ' Insert code to read the stream here. 
-
+                    Dim myCount As Integer = 1
                     For Each line As String In System.IO.File.ReadAllLines(openFileDialog1.FileName)
-                        addLinks(line)
+                        ToolStripProgressBar1.Value = 100 * (myCount / System.IO.File.ReadAllLines(openFileDialog1.FileName).Length)
+                        myCount += 1
+                        Try
+                            addLinks(line)
+                        Catch
+                        End Try
                     Next
                 End If
+                ToolStripProgressBar1.Value = 0
             Catch Ex As Exception
-                MessageBox.Show("Cannot read file from disk. Original error: " & Ex.Message)
-            Finally
-                ' Check this again, since we need to make sure we didn't throw an exception on open. 
-                If (myStream IsNot Nothing) Then
-                    myStream.Close()
-                End If
-            End Try
+            MessageBox.Show("Cannot read file from disk. Original error: " & Ex.Message)
+        Finally
+            ' Check this again, since we need to make sure we didn't throw an exception on open. 
+            If (myStream IsNot Nothing) Then
+                myStream.Close()
+            End If
+        End Try
         End If
     End Sub
     Private Sub ExtractSingleFile_Click(sender As Object, e As EventArgs) Handles ExtractSingleFile.Click
@@ -62,6 +71,7 @@ Public Class Form1
                 myReplacementRow(2) = Me.DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString
                 myReplacementRow(3) = ">>> Updated !!!"
                 myReplacementRow(4) = myLocalFile
+                myReplacementRow(6) = Date.Now().ToString("yyyy-MM-dd hh:mm:ss")
                 myReplacementRow(7) = myMetaData(0)
                 myReplacementRow(8) = myMetaData(1)
                 myReplacementRow(9) = myMetaData(2)
@@ -69,16 +79,108 @@ Public Class Form1
                 Me.DataGridView1.Rows(iRowIndex).SetValues(myReplacementRow)
 
                 'testStr &= "Row index " & iRowIndex & vbCrLf
+                ToolStripProgressBar1.Value = 100 * (i / Me.DataGridView1.SelectedCells.Count)
             Next
+            ToolStripProgressBar1.Value = 0
             'MsgBox(testStr)
         Catch ex As Exception
             MsgBox("ExtractSingleFile: " & ex.Message)
         End Try
+            
+    End Sub
+
+    Private Sub ToolStripMenuItemEditNodes_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItemEditNodes.Click
+        Dim iRowIndex As Integer
+        Dim myURLstring As String
+        For i As Integer = 0 To Me.DataGridView1.SelectedCells.Count - 1
+            Errnum = 1
+            iRowIndex = Me.DataGridView1.SelectedCells.Item(i).RowIndex
+            ToolStripStatusLabel1.Text() = "Opening " & DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString()
+            Try
+                Errnum = 2
+                If DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString() <> "" Then
+                    Errnum = 2.1
+                    myURLstring = "https://cms.doe.gov/" & DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString() & "/edit"
+                    ErrMsg = (myURLstring)
+                    Process.Start("Chrome.exe", myURLstring)
+                    DataGridView1.Rows(iRowIndex).Cells("AddNode").Value = "edit clicked"
+                    DataGridView1.Rows(iRowIndex).Cells(6).Value = Date.Now().ToString("yyyy-MM-dd hh:mm:ss")
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error " & Errnum & vbCrLf & ErrMsg & vbCrLf & ex.Message)
+            End Try
+            ToolStripProgressBar1.Value = 100 * (i / Me.DataGridView1.SelectedCells.Count)
+        Next i
+        ToolStripProgressBar1.Value = 0
+        ToolStripStatusLabel1.Text() = "Ready"
+    End Sub
+
+    Private Sub UpdateSelectedNodesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UpdateSelectedNodesToolStripMenuItem.Click
+        Dim iRowIndex As Integer
+        Dim myURLstring As String
+        Dim myChromeThreads()
+        Dim doLoop As Integer
+        For i As Integer = 0 To Me.DataGridView1.SelectedCells.Count - 1
+            Errnum = 1
+            iRowIndex = Me.DataGridView1.SelectedCells.Item(i).RowIndex
+            ToolStripStatusLabel1.Text() = "Sending update for " & DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString()
+            Dim arrColQuer As String(,) = {{"DateCreated", "dnkfffDate"}, {"Title", "dnkfftitle"}, {"Subject", "dnkffsubject"}, {"OfficeSpecificTopics", "dnkffofficespecific"}, {"LocalFilePath", "dnkffURL"}}
+            Try
+                Errnum = 2
+                If DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString() <> "" Then
+                    Errnum = 2.1
+                    myURLstring = "https://cms.doe.gov/" & DataGridView1.Rows(iRowIndex).Cells("NodeID").Value.ToString() & "/edit?"
+                    ErrMsg = (myURLstring)
+
+                    For querNum As Integer = 0 To arrColQuer.GetUpperBound(0)
+                        Errnum = 2.21
+                        ErrMsg &= vbCrLf & (querNum & ". " & arrColQuer(querNum, 0) & " : " & DataGridView1.Rows(iRowIndex).Cells(arrColQuer(querNum, 0)).Value)
+                        Errnum = 2.22
+                        If DataGridView1.Rows(iRowIndex).Cells(arrColQuer(querNum, 0)).Value.ToString() <> "" Then
+                            Errnum = 2.3
+                            myURLstring &= arrColQuer(querNum, 1) & "=" & System.Net.WebUtility.UrlEncode(DataGridView1.Rows(iRowIndex).Cells(arrColQuer(querNum, 0)).Value.ToString.Trim("""").Replace("%", "%25").Replace("""""", """")) & "&"
+                        End If
+                    Next querNum
+                    Errnum = 2.4
+
+                    If ImmediatePublish = True Then
+                        myURLstring &= "dnkffautopublish=true"
+                    End If
+                    myURLstring = myURLstring.Trim("&")
+                    'MessageBox.Show(myURLstring)
+                    '>> FIRE IT TO CHROME   <<<
+                    myChromeThreads = System.Diagnostics.Process.GetProcessesByName("Chrome")
+                    'MsgBox("number of chrome threads:" & myChromeThreads.Count)
+                    If Me.ImmediatePublish = True Then
+                        doLoop = 0
+                        Do Until myChromeThreads.Count < 20
+                            doLoop += 1
+                            System.Threading.Thread.Sleep(1000)
+                            myChromeThreads = System.Diagnostics.Process.GetProcessesByName("Chrome")
+                            If doLoop > 300 Then
+                                Exit Do
+                            End If
+                        Loop
+                    End If
+                    Process.Start("Chrome.exe", myURLstring)
+                    DataGridView1.Rows(iRowIndex).Cells("AddNode").Value = "update sent"
+                    DataGridView1.Rows(iRowIndex).Cells(6).Value = Date.Now().ToString("yyyy-MM-dd hh:mm:ss")
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error " & Errnum & vbCrLf & ErrMsg & vbCrLf & ex.Message)
+            End Try
+            ToolStripProgressBar1.Value = 100 * (i / Me.DataGridView1.SelectedCells.Count)
+
+        Next i
+        ToolStripProgressBar1.Value = 0
+        ToolStripStatusLabel1.Text() = "Ready"
 
     End Sub
+
     Private Sub OpenExtract_Click(sender As Object, e As EventArgs) Handles OpenExtract.Click
         Dim myStream As Stream = Nothing
         Dim openFileDialog1 As New OpenFileDialog()
+        ' Dim TotalRowCount As Integer = 1
 
         openFileDialog1.InitialDirectory = LocalFolder
         openFileDialog1.Filter = "tab delineated txt files (*.txt)|*.txt|All files (*.*)|*.*"
@@ -87,15 +189,18 @@ Public Class Form1
 
         If openFileDialog1.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
             Try
+                'TotalRowCount = DataGridView1.RowCount
                 My.Settings.MyMostRecentFile = openFileDialog1.FileName
                 myStream = openFileDialog1.OpenFile()
                 If (myStream IsNot Nothing) Then
                     ' Insert code to read the stream here. 
                     For Each line As String In System.IO.File.ReadAllLines(openFileDialog1.FileName)
-                        DataGridView1.Rows.Add(line.Split(vbTab))
-                        'For Each myCell As DataGridViewCell In DataGridView1.Rows(DataGridView1.Rows.Count - 1).Cells
-                        '    myCell.Value = myCell.Value.ToString.Trim("""")
-                        'Next
+                        If line <> myFileHeader Then
+                            DataGridView1.Rows.Add(line.Split(vbTab))
+                            'DataGridView1.Rows(TotalRowCount - 1).HeaderCell.Value = TotalRowCount.ToString()
+                            DataGridView1.Rows(DataGridView1.Rows.Count - 2).HeaderCell.Value = DataGridView1.Rows.Count.ToString()
+                            ' TotalRowCount += 1
+                        End If
                     Next
                 End If
             Catch Ex As Exception
@@ -113,6 +218,7 @@ Public Class Form1
             If System.IO.File.Exists(My.Settings.MyMostRecentFile) = True Then
                 Dim myLine As String = ""
                 Dim objWriter As New System.IO.StreamWriter(My.Settings.MyMostRecentFile)
+                objWriter.WriteLine(myFileHeader)
                 For Each myRow As DataGridViewRow In DataGridView1.Rows
                     myLine = ""
                     For Each myCell As DataGridViewCell In myRow.Cells
@@ -126,14 +232,41 @@ Public Class Form1
                 Next
                 objWriter.Close()
                 MsgBox("Text written to file")
-
             Else
-
                 MsgBox("File Does Not Exist")
-
             End If
         Catch ex As Exception
         End Try
+    End Sub
+    Private Sub SaveAsExtract_Click(sender As Object, e As EventArgs) Handles SaveAsExtract.Click
+        'Dim myStream As Stream
+        Dim saveFileDialog1 As New SaveFileDialog()
+        saveFileDialog1.InitialDirectory = LocalFolder
+        saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*"
+        saveFileDialog1.FilterIndex = 1
+        saveFileDialog1.RestoreDirectory = True
+
+        If saveFileDialog1.ShowDialog() = DialogResult.OK Then
+            'myStream = saveFileDialog1.OpenFile()
+            'If (myStream IsNot Nothing) Then
+            Dim myLine As String = ""
+            Dim StreamWriter As New System.IO.StreamWriter(saveFileDialog1.FileName)
+            StreamWriter.WriteLine(myFileHeader)
+            For Each myRow As DataGridViewRow In DataGridView1.Rows
+                myLine = ""
+                For Each myCell As DataGridViewCell In myRow.Cells
+                    If Not myCell.Value Is Nothing Then
+                        myLine &= myCell.Value.ToString & vbTab
+                    Else
+                        myLine &= vbTab
+                    End If
+                Next
+                StreamWriter.WriteLine(myLine)
+            Next
+            StreamWriter.Close()
+            MsgBox("Text written to file")
+            'End If
+        End If
     End Sub
     Private Sub CloseExtract_Click(sender As Object, e As EventArgs) Handles CloseExtract.Click
         DataGridView1.Rows.Clear()
@@ -157,8 +290,8 @@ Public Class Form1
                 Dim myOtherOutput As String = "This is Sorted" & vbCrLf
                 myFileURL = DataGridView1.Rows(e.RowIndex).Cells("FileURL").Value.ToString
                 myURLstring = Me.CreateDownloadURL & "&dnkffdate=" & DataGridView1.Rows(e.RowIndex).Cells("DateCreated").Value.ToString.Trim("""")
-                myURLstring &= "&dnkfftitle=" & System.Net.WebUtility.UrlEncode(DataGridView1.Rows(e.RowIndex).Cells("Title").Value.ToString.Trim(""""))
-                myURLstring &= "&dnkffsubject=" & System.Net.WebUtility.UrlEncode(DataGridView1.Rows(e.RowIndex).Cells("Subject").Value.ToString.Trim(""""))
+                myURLstring &= "&dnkfftitle=" & System.Net.WebUtility.UrlEncode(DataGridView1.Rows(e.RowIndex).Cells("Title").Value.ToString.Trim("""").Replace("%", "%25").Replace("""""", """"))
+                myURLstring &= "&dnkffsubject=" & System.Net.WebUtility.UrlEncode(DataGridView1.Rows(e.RowIndex).Cells("Subject").Value.ToString.Trim("""").Replace("%", "%25").Replace("""""", """"))
 
 
                 '>> FIRE IT TO CHROME   <<<
@@ -169,65 +302,8 @@ Public Class Form1
 
                 '>>>>> THE ONE KEY THING <<<<
                 Errnum = 2.41
-                Process.Start(myURLstring)
-
-
-                'my plot: START THE PROCESS (check) find the process, then send the commandS to enter the textbox info
-
-                'Dim myProcesses() = Process.GetProcesses
-                'Dim myChromeProcess As Process
-                'Dim myChromeProcesses = New List(Of Process)()
-                'Dim myInitialChromeProcesses = New List(Of Process)()
-                'Dim myInitialChromeProcessIDs = New List(Of Integer)()
-                'Dim myProcessID As Integer
-
-                'Errnum = 2.3
-                'For Each myProcess In myProcesses
-                '    If myProcess.ProcessName.ToString = "chrome" Then
-                '        myInitialChromeProcessIDs.Add(myProcess.Id)
-                '    End If
-                'Next
-                'Errnum = 2.4
-                'Dim startInfo As New ProcessStartInfo(myURLstring)
-                'startInfo.UseShellExecute = False
-                'startInfo.RedirectStandardOutput = True
-
-                'I was hoping to pass the commands for entereing the text through here to chrome... closing that loop.... 
-                'by getting the process of the individual tab and then sending keystroke messege/ commands to chrome.. alas
-                'System.Threading.Thread.Sleep(1000)
-                'myProcesses = Process.GetProcesses
-                'Errnum = 2.42
-                'For Each newProcess In myProcesses
-                '    If newProcess.ProcessName.ToString = "chrome" And Not myInitialChromeProcessIDs.Contains(newProcess.Id) Then
-                '        myOutput &= "NEW >" & newProcess.ProcessName & " " & newProcess.Id & " " & newProcess.StartTime.ToString("hh:mm:ss") & vbCrLf
-                '        myChromeProcesses.Add(newProcess)
-                '    End If
-                'Next
-                'Errnum = 2.5
-                ''MessageBox.Show(myOutput)
-                'Errnum = 2.6
-                'myChromeProcess = myChromeProcesses(myChromeProcesses.Count - 1)
-                'Errnum = 2.7
-                'Dim idleMessage As String = "idling test:" & vbCrLf
-                'If Not myChromeProcess Is Nothing Then
-                '    For i = 1 To 25
-                '        Try
-                '            Errnum = 2.82
-                '            myChromeProcess.Refresh()
-                '            Errnum = 2.83
-                '            'idleMessage &= myChromeProcess.Threads.Count().ToString & vbCrLf
-                '            idleMessage &= myChromeProcess.StandardOutput.ReadLine() & vbCrLf
-                '            System.Threading.Thread.Sleep(500)
-                '        Catch ex As Exception
-                '            idleMessage &= Errnum & " : " & ex.Message
-                '        End Try
-                '    Next
-                'Else
-                '    idleMessage &= "this chrome process is nothing"
-                'End If
-                'MessageBox.Show(idleMessage)
-                'myChromeProcess.Kill()
-
+                Process.Start("Chrome.exe", myURLstring)
+                DataGridView1.Rows(e.RowIndex).Cells(3).Value = Date.Now().ToString("yyyy-MM-dd hh:mm:ss")
 
             End If
         Catch ex As Exception
@@ -236,12 +312,20 @@ Public Class Form1
 
     End Sub
 
-    '####################   OPTIONS ##############################
+    '####################   OPTIONS #####################################################################################################3
     Private Sub StructureToggle_Click(sender As Object, e As EventArgs) Handles StructureToggle.Click
         If StructureToggle.Checked = True Then
             CopyStructure = True
         Else
             CopyStructure = False
+        End If
+    End Sub
+
+    Private Sub ImmediatePublish_Click(sender As Object, e As EventArgs) Handles ImmediatePublishToggle.Click
+        If ImmediatePublishToggle.Checked = True Then
+            ImmediatePublish = True
+        Else
+            ImmediatePublish = False
         End If
     End Sub
 
@@ -255,7 +339,7 @@ Public Class Form1
     End Sub
 
 
-    '################ Public Props ################################
+    '################ Public Props ######################################################################################################
 
     Private _CreateDownloadURL As String = My.Settings.CreateDownloadURL
     Public Property CreateDownloadURL As String
@@ -291,8 +375,16 @@ Public Class Form1
         End Set
     End Property
 
-
-
+    Private _ImmediatePublish As Boolean = My.Settings.ImmediatePublish
+    Public Property ImmediatePublish As Boolean
+        Get
+            Return _ImmediatePublish
+        End Get
+        Set(ByVal value As Boolean)
+            _ImmediatePublish = value
+            My.Settings.ImmediatePublish = value
+        End Set
+    End Property
 
     '###############################   FUNCTIONS    #########################################################################
     Private Function extractPDFMetaData(filePath As String)
@@ -386,21 +478,26 @@ Public Class Form1
         Dim wc As New System.Net.WebClient
         Dim html As String = wc.DownloadString(url)
         Dim matchUrl As String = ""
-        Dim links As System.Text.RegularExpressions.MatchCollection = System.Text.RegularExpressions.Regex.Matches(html, "href=""(.*?)\.(pdf|xls|xlsx|doc|docx|ppt|pptx)")
+        Dim links As System.Text.RegularExpressions.MatchCollection = System.Text.RegularExpressions.Regex.Matches(html, "href=""([^<>]*?)\.(pdf|xls|xlsx|doc|docx|ppt|pptx)")
+
         'MsgBox("Add Link : " & url & vbCrLf & "links found..?" & links.Count())
         For Each match As System.Text.RegularExpressions.Match In links
             Try
                 'Dim dr As DataRow = DataGridView1
-                matchUrl = match.Value.ToString()
-                If Not matchUrl.StartsWith("http://") And Not matchUrl.StartsWith("https://") Then
+                matchUrl = match.Value.ToString().Replace("href=""", "")
+
+                If matchUrl.StartsWith("/") Then
                     matchUrl = MapUrl("http://www1.eere.energy.gov", matchUrl)
                 End If
-                matchUrl = matchUrl.Replace("href=""", "")
-                DataGridView1.Rows.Add({url, matchUrl, "", "- found -", "", "", "", "", "", ""})
-
+                If System.Text.RegularExpressions.Regex.Match(matchUrl, "eere.energy.gov").Success = True Then
+                    DataGridView1.Rows.Add({url, matchUrl, "", "- found -", "", "", "", "", "", ""})
+                    DataGridView1.Rows(DataGridView1.Rows.Count() - 2).HeaderCell.Value = DataGridView1.Rows.Count().ToString()
+                End If
 
             Catch ex As Exception
                 MsgBox("Add Link Error from " & matchUrl & vbCrLf & ex.Message)
+                'DataGridView1.Rows.Add({url, matchUrl, "", "- error -", "", "", "", "", "", ex.Message})
+                'DataGridView1.Rows(DataGridView1.Rows.Count() - 2).HeaderCell.Value = DataGridView1.Rows.Count().ToString()
             End Try
         Next
 
@@ -440,6 +537,11 @@ Public Class Form1
         End If
 
     End Function
+
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+        AboutBox1.Show()
+    End Sub
 
 
 End Class

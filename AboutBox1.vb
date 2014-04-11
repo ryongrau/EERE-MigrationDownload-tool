@@ -26,4 +26,8 @@
     Private Sub LabelProductName_Click(sender As Object, e As EventArgs) Handles LabelProductName.Click
 
     End Sub
+
+    Private Sub LabelVersion_Click(sender As Object, e As EventArgs) Handles LabelVersion.Click
+
+    End Sub
 End Class

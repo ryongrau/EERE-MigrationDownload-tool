@@ -27,8 +27,8 @@ Partial Class Form1
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExtractSingleFile = New System.Windows.Forms.ToolStripMenuItem()
-        Me.DownloadFromSinglePage = New System.Windows.Forms.ToolStripMenuItem()
         Me.DownLoadFromList = New System.Windows.Forms.ToolStripMenuItem()
+        Me.UpdateSelectedNodesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.OpenExtract = New System.Windows.Forms.ToolStripMenuItem()
         Me.CloseExtract = New System.Windows.Forms.ToolStripMenuItem()
@@ -37,6 +37,7 @@ Partial Class Form1
         Me.toolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ImmediatePublishToggle = New System.Windows.Forms.ToolStripMenuItem()
         Me.StructureToggle = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetTargetDownloadFolder = New System.Windows.Forms.ToolStripMenuItem()
         Me.EnterLocalFIlePathBelowToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -61,10 +62,12 @@ Partial Class Form1
         Me.DateCreated = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Title = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Subject = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.OfficeSpecificTopics = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ActiveSheetBindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.Form1BindingSource = New System.Windows.Forms.BindingSource(Me.components)
         Me.Form1BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ActiveSheetBindingSource = New System.Windows.Forms.BindingSource(Me.components)
+        Me.ToolStripMenuItemEditNodes = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -85,7 +88,7 @@ Partial Class Form1
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExtractSingleFile, Me.DownloadFromSinglePage, Me.DownLoadFromList, Me.ToolStripSeparator2, Me.OpenExtract, Me.CloseExtract, Me.SaveExtract, Me.SaveAsExtract, Me.toolStripSeparator1, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExtractSingleFile, Me.DownLoadFromList, Me.UpdateSelectedNodesToolStripMenuItem, Me.ToolStripMenuItemEditNodes, Me.ToolStripSeparator2, Me.OpenExtract, Me.CloseExtract, Me.SaveExtract, Me.SaveAsExtract, Me.toolStripSeparator1, Me.ExitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
@@ -95,18 +98,9 @@ Partial Class Form1
         Me.ExtractSingleFile.Image = CType(resources.GetObject("ExtractSingleFile.Image"), System.Drawing.Image)
         Me.ExtractSingleFile.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ExtractSingleFile.Name = "ExtractSingleFile"
-        Me.ExtractSingleFile.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.F), System.Windows.Forms.Keys)
+        Me.ExtractSingleFile.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.E), System.Windows.Forms.Keys)
         Me.ExtractSingleFile.Size = New System.Drawing.Size(331, 22)
-        Me.ExtractSingleFile.Text = "Extract MetaData &From Selected File URLs"
-        '
-        'DownloadFromSinglePage
-        '
-        Me.DownloadFromSinglePage.Image = CType(resources.GetObject("DownloadFromSinglePage.Image"), System.Drawing.Image)
-        Me.DownloadFromSinglePage.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.DownloadFromSinglePage.Name = "DownloadFromSinglePage"
-        Me.DownloadFromSinglePage.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.P), System.Windows.Forms.Keys)
-        Me.DownloadFromSinglePage.Size = New System.Drawing.Size(331, 22)
-        Me.DownloadFromSinglePage.Text = "Download and Extract from Single &Page"
+        Me.ExtractSingleFile.Text = "&Extract MetaData From Selected File URLs"
         '
         'DownLoadFromList
         '
@@ -115,7 +109,14 @@ Partial Class Form1
         Me.DownLoadFromList.Name = "DownLoadFromList"
         Me.DownLoadFromList.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.L), System.Windows.Forms.Keys)
         Me.DownLoadFromList.Size = New System.Drawing.Size(331, 22)
-        Me.DownLoadFromList.Text = "&List Download Media FIles from Page &List"
+        Me.DownLoadFromList.Text = "Add Media Files from Page &List"
+        '
+        'UpdateSelectedNodesToolStripMenuItem
+        '
+        Me.UpdateSelectedNodesToolStripMenuItem.Name = "UpdateSelectedNodesToolStripMenuItem"
+        Me.UpdateSelectedNodesToolStripMenuItem.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.U), System.Windows.Forms.Keys)
+        Me.UpdateSelectedNodesToolStripMenuItem.Size = New System.Drawing.Size(331, 22)
+        Me.UpdateSelectedNodesToolStripMenuItem.Text = "&Update Selected Nodes"
         '
         'ToolStripSeparator2
         '
@@ -167,10 +168,19 @@ Partial Class Form1
         '
         'ToolsToolStripMenuItem
         '
-        Me.ToolsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StructureToggle, Me.SetTargetDownloadFolder, Me.CustomizeToolStripMenuItem})
+        Me.ToolsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ImmediatePublishToggle, Me.StructureToggle, Me.SetTargetDownloadFolder, Me.CustomizeToolStripMenuItem})
         Me.ToolsToolStripMenuItem.Name = "ToolsToolStripMenuItem"
         Me.ToolsToolStripMenuItem.Size = New System.Drawing.Size(61, 20)
         Me.ToolsToolStripMenuItem.Text = "&Options"
+        '
+        'ImmediatePublishToggle
+        '
+        Me.ImmediatePublishToggle.CheckOnClick = True
+        Me.ImmediatePublishToggle.Name = "ImmediatePublishToggle"
+        Me.ImmediatePublishToggle.Size = New System.Drawing.Size(242, 22)
+        Me.ImmediatePublishToggle.Text = "ImmediatePublish"
+        Me.ImmediatePublishToggle.ToolTipText = "select this to enable moving directly to published state- not compatible with ADD" & _
+    "ING a new node"
         '
         'StructureToggle
         '
@@ -255,6 +265,7 @@ Partial Class Form1
         '
         Me.ToolStripProgressBar1.Name = "ToolStripProgressBar1"
         Me.ToolStripProgressBar1.Size = New System.Drawing.Size(100, 16)
+        Me.ToolStripProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         '
         'ToolStripStatusLabel1
         '
@@ -271,7 +282,7 @@ Partial Class Form1
         Me.DataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.DataGridView1.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.SourcePage, Me.FileURL, Me.NodeID, Me.AddNode, Me.LocalFilePath, Me.FileSize, Me.DateDownLoaded, Me.DateCreated, Me.Title, Me.Subject})
+        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.SourcePage, Me.FileURL, Me.NodeID, Me.AddNode, Me.LocalFilePath, Me.FileSize, Me.DateDownLoaded, Me.DateCreated, Me.Title, Me.Subject, Me.OfficeSpecificTopics})
         Me.DataGridView1.Location = New System.Drawing.Point(12, 27)
         Me.DataGridView1.Name = "DataGridView1"
         Me.DataGridView1.Size = New System.Drawing.Size(1137, 358)
@@ -329,6 +340,11 @@ Partial Class Form1
         Me.Subject.HeaderText = "Subject"
         Me.Subject.Name = "Subject"
         '
+        'OfficeSpecificTopics
+        '
+        Me.OfficeSpecificTopics.HeaderText = "OfficeSpecificTopics"
+        Me.OfficeSpecificTopics.Name = "OfficeSpecificTopics"
+        '
         'ActiveSheetBindingSource1
         '
         Me.ActiveSheetBindingSource1.DataSource = GetType(EERE_MigrationDownload_tool.ActiveSheet)
@@ -344,6 +360,13 @@ Partial Class Form1
         'ActiveSheetBindingSource
         '
         Me.ActiveSheetBindingSource.DataSource = GetType(EERE_MigrationDownload_tool.ActiveSheet)
+        '
+        'ToolStripMenuItemEditNodes
+        '
+        Me.ToolStripMenuItemEditNodes.Name = "ToolStripMenuItemEditNodes"
+        Me.ToolStripMenuItemEditNodes.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.D), System.Windows.Forms.Keys)
+        Me.ToolStripMenuItemEditNodes.Size = New System.Drawing.Size(331, 22)
+        Me.ToolStripMenuItemEditNodes.Text = "E&dit Selected Node"
         '
         'Form1
         '
@@ -372,7 +395,6 @@ Partial Class Form1
     Friend WithEvents MenuStrip1 As System.Windows.Forms.MenuStrip
     Friend WithEvents FileToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExtractSingleFile As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents DownloadFromSinglePage As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents DownLoadFromList As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents SaveExtract As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents SaveAsExtract As System.Windows.Forms.ToolStripMenuItem
@@ -400,6 +422,7 @@ Partial Class Form1
     Friend WithEvents NodeCreationPage As System.Windows.Forms.ToolStripTextBox
     Friend WithEvents EnterLocalFIlePathBelowToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents LocalPathTextBox As System.Windows.Forms.ToolStripTextBox
+    Friend WithEvents UpdateSelectedNodesToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents SourcePage As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents FileURL As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents NodeID As System.Windows.Forms.DataGridViewTextBoxColumn
@@ -410,5 +433,8 @@ Partial Class Form1
     Friend WithEvents DateCreated As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents Title As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents Subject As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents OfficeSpecificTopics As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents ImmediatePublishToggle As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripMenuItemEditNodes As System.Windows.Forms.ToolStripMenuItem
 
 End Class
